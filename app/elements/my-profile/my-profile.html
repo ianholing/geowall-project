@@ -1,0 +1,58 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<dom-module id="my-profile">
+  <style>
+    .circle{
+      border-radius: 50%;
+      -webkit-border-radius: 50%;
+      -moz-border-radius: 50%;
+      border-width:thick;
+      border-color: var(--accent-color);
+    }
+  </style>
+  <template>
+
+    <div class="horizontal center-justified layout">
+      <iron-image class="circle" src="{{userdata.profileImageURL}}"></iron-image>
+    </div>
+    <div class="horizontal center-justified layout">
+      <h2>{{userdata.displayName}}</h2>
+    </div>
+
+  </template>
+  <script>
+    (function() {
+      Polymer({
+        is: 'my-profile',
+
+        properties: {
+          userdata: {
+            type: Object,
+            value: function () {
+              return backend.getUserProfile();
+            },
+            notify: true
+          },
+          profileUrl: {
+            type: Object,
+            value: function () {
+              var profile = backend.getUserProfile();
+              console.log(profile.profileImageURL);
+              return profile.profileImageURL;
+            },
+            notify: true
+          },
+        }
+      });
+    })();
+  </script>
+
+</dom-module>

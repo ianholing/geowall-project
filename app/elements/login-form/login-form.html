@@ -1,0 +1,246 @@
+<!-- Remove if you don't want a custom validator for your email -->
+<script>
+Polymer({
+  is: 'custom-validator',
+
+  behaviors: [
+    Polymer.IronValidatorBehavior
+  ]
+});
+</script>
+<!-- Stop here -->
+
+<dom-module id="login-form">
+  <template>
+    <style include="shared-styles"></style>
+    <style>
+      paper-material {
+        padding:10px 50px 50px 50px;
+      }
+      .body {
+        padding:10px 50px 50px 50px;
+      }
+      paper-button {
+        margin: 8px;
+      }
+    </style>
+
+    <div class="body">
+      <!--<paper-material elevation="1">-->
+      <h2 class="page-title">Welcome <span>{{name}}</span></h2>
+      <paper-input label="Name" id="name" value="{{name::input}}" required auto-validate error-message="¿¿Really this is your name??"></paper-input>
+
+
+      <custom-validator id="valid1" validator-name="emailvalidate"></custom-validator>
+      <!--<custom-validator id="valid2" validator-name="validator2"></custom-validator>-->
+      <!--<paper-input auto-validate id='input_2' label='Label_2' validator='validator2'></paper-input>-->
+
+
+      <paper-input label="Email" id="email" value="{{email::input}}" required auto-validate validator="emailvalidate" error-message="Should be your e-mail "></paper-input>
+      <paper-input label="Password" type="password" id="password" value="{{password::input}}" on-keypress="keypressed"required auto-validate error-message="Debe introducir una contraseña"></paper-input><br/>
+      <paper-button raised on-click="anonymouslogin">Anonymous login</paper-button>
+      <paper-button raised style="background-color:blue;color:white;" on-click="login">GO</paper-button><br /><br /><br /><br />
+
+      Or Select your social login here:<br /><br />
+      <paper-button raised style="background-color:blue;color:white;" on-click="facebookLogin">Facebook Login</paper-button>
+      <paper-button raised style="background-color: deepskyblue;color:white;" on-click="twitterLogin">Twitter Login</paper-button>
+      <paper-button raised style="background-color:red;color:white;" on-click="googleLogin">Google Plus Login</paper-button>
+      <!--</paper-material>-->
+
+      <paper-dialog id="newuser" modal class="loading">
+        <div>
+          <paper-spinner alt="Loading..." active></paper-spinner>
+          <span style="margin:40px;padding:0;" id="newusermessage">The user you are trying to login is not registered</span>
+          <paper-button raised style="background-color:blue;color:white;" on-click="register">Ok, Register it</paper-button>
+          <paper-button raised on-click="cancelregister">Cancel</paper-button>
+        </div>
+      </paper-dialog>
+    </div>
+  </template>
+
+  <script>
+    (function() {
+      Polymer({
+        is: 'login-form',
+
+        properties: {
+          email: {
+            type: String,
+            value: '',
+            notify: true
+          },
+          name: {
+            type: String,
+            value: 'Anonymous',
+            notify: true
+          },
+          password: {
+            type: String,
+            value: '',
+            notify: true
+          }
+        },
+
+        emailvalidate: function() {
+          var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+          return re.test(email.value);
+        },
+
+        ready: function() {
+          this.$.valid1.validate = this.emailvalidate.bind(this);
+        },
+
+        anonymouslogin: function() {
+
+        },
+
+
+        login: function() {
+
+          //check fields
+          var isValid = true;
+          if (!document.getElementById('name').validate()) isValid = false;
+          if (!document.getElementById('email').validate()) isValid = false;
+          if (!document.getElementById('password').validate()) isValid = false;
+          if (!isValid){
+            app.showNotification("Something is wrong here ¬¬");
+            return false;
+          }
+
+          app.loading(true,"Validating, please wait..");
+          backend.login(this.email, this.password, function(error, userData) {
+            app.loading(false);
+            if (error) {
+              if (error.code == "INVALID_USER") {
+                var newuserdialog = document.querySelector('#newuser');
+                newuserdialog.open();
+              }
+              else {
+                app.showNotification("Password not match");
+                console.log("Error login user:", error);
+              }
+
+            } else {
+              app.showNotification("You have been logged succesfully");
+              console.log("Successfully logged account:", userData);
+              app.goHome();
+            }
+          });
+        },
+
+        facebookLogin: function() {
+          app.loading(true,"Validating, please wait..");
+          backend.facebookLogin(function(error, userData) {
+            app.loading(false);
+            if (error) {
+              if (error.code == "INVALID_USER") {
+                var newuserdialog = document.querySelector('#newuser');
+                newuserdialog.open();
+              }
+              else {
+                app.showNotification("Something goes wrong");
+                console.log("Error login user:", error);
+              }
+
+            } else {
+              app.showNotification("You have been logged succesfully");
+              console.log("Successfully logged account:", userData);
+              app.goHome();
+            }
+          });
+        },
+
+        twitterLogin: function() {
+          app.loading(true,"Validating, please wait..");
+          backend.twitterLogin(function(error, userData) {
+            app.loading(false);
+            if (error) {
+              if (error.code == "INVALID_USER") {
+                var newuserdialog = document.querySelector('#newuser');
+                newuserdialog.open();
+              }
+              else {
+                app.showNotification("Something goes wrong");
+                console.log("Error login user:", error);
+              }
+
+            } else {
+              app.showNotification("You have been logged succesfully");
+              console.log("Successfully logged account:", userData);
+              app.goHome();
+            }
+          });
+        },
+
+        googleLogin: function() {
+          app.loading(true,"Validating, please wait..");
+          backend.googleLogin(function(error, userData) {
+            app.loading(false);
+            if (error) {
+              if (error.code == "INVALID_USER") {
+                var newuserdialog = document.querySelector('#newuser');
+                newuserdialog.open();
+              }
+              else {
+                app.showNotification("Something goes wrong");
+                console.log("Error login user:", error);
+              }
+
+            } else {
+              app.showNotification("You have been logged succesfully");
+              console.log("Successfully logged account:", userData);
+              app.goHome();
+            }
+          });
+        },
+
+        register: function() {
+          var newuserdialog = document.querySelector('#newuser');
+          newuserdialog.close();
+
+          //check fields
+          var isValid = true;
+          if (!document.getElementById('name').validate()) isValid = false;
+          if (!document.getElementById('email').validate()) isValid = false;
+          if (!document.getElementById('password').validate()) isValid = false;
+          if (!isValid){
+            app.showNotification("Please fill the form without tricking");
+            return false;
+          }
+
+          app.loading(true,"Creating new user");
+          backend.registerUser(this.email, this.password, function(error, userData) {
+            if (error) {
+              app.showNotification(error);
+              console.log("Error creating user:", error);
+              app.loading(false);
+            } else {
+              app.showNotification("Your user has been created. Connecting...");
+              console.log("Successfully created user account with uid:", userData.uid);
+              //The register method from firebase does not log you in, so then I must login
+              document.querySelector('login-form').login();
+            }
+          });
+        },
+
+        cancelregister: function () {
+          var newuserdialog = document.querySelector('#newuser');
+          newuserdialog.close();
+        },
+
+        keypressed: function(e, detail, target) {
+          if (e.keyCode != 13) {return;}
+          this.login();
+
+        },
+
+        reset: function(){
+          this.email = '';
+          this.password = '';
+        }
+
+      });
+    })();
+  </script>
+
+</dom-module>

@@ -1,11 +1,11 @@
 /*
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
-*/
+ Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+ This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+ The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+ The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+ Code distributed by Google as part of the polymer project is also
+ subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+ */
 
 (function(document) {
   'use strict';
@@ -69,6 +69,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   // Scroll page to top and expand header
   app.scrollPageToTop = function() {
     document.getElementById('mainContainer').scrollTop = 0;
-  };
+  }
+
+
+  // BELOW THIS MARK IS CUSTOM CODE:
+
+  app.scrollPageToBottom = function() {
+    //.scrollBottom = 0;
+    document.getElementById('mainContainer').scrollTop = 100000000000;
+  }
+
+  app.showNotification = function(message){
+    var c = document.getElementById('toast-message');
+    c.text = message;
+    c.show();
+  }
+
+  app.loadingNoModal = function(value, message, modal)  {
+    var loading = document.querySelector('#loadingNoModal');
+    document.querySelector('#loadingmessage').innerHTML=message;
+    if (value) {
+      loading.open();
+    } else {
+      loading.close();
+    }
+  }
+
+  app.loading = function(value, message) {
+    var loading = document.querySelector('#loading');
+    document.querySelector('#loadingmessage').innerHTML=message;
+    if (value) {
+      loading.open();
+    } else {
+      loading.close();
+    }
+  }
+
+  app.goAnywhere = function() {
+    var drawerPanel = document.querySelector('paper-drawer-panel');
+    paperToggle.style.visibility = 'visible';
+    drawerPanel.disableSwipe = false;
+  }
+
+  app.goLogin = function() {
+    var loginForm = document.querySelector('login-form');
+    var drawerPanel = document.querySelector('paper-drawer-panel');
+    paperToggle.style.visibility = 'hidden';
+    loginForm.reset();
+    drawerPanel.forceNarrow = true;
+    drawerPanel.closeDrawer();
+    drawerPanel.disableSwipe = true;
+    app.route = 'login';
+  }
+
+  app.goHome = function () {
+    var drawerPanel = document.querySelector('paper-drawer-panel');
+    drawerPanel.forceNarrow = false;
+    app.goAnywhere();
+    app.route = 'wall';
+  }
+
+  if (!backend.isUserLoggedIn()) window.onload = app.goLogin;
 
 })(document);

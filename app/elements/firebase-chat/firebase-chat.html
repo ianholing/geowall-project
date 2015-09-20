@@ -1,0 +1,154 @@
+<!--<link rel="import" href="chat-row.html">-->
+<style>
+  #chatlist {
+    height: 100%;
+    padding-bottom: 10vh;
+  }
+
+  #chatlist paper-button {
+    width: 100%;
+  }
+
+  .container {
+    display: flex;
+    padding: 16px;
+    -webkit-flex-direction: column;
+  }
+
+  .shim {
+    display: flex;
+    position:fixed;
+    bottom:0px;
+    height: 10vh;
+    width: 100vh;
+    padding: 0px;
+    background: #fafafa;
+  }
+
+  .send-message {
+    display: flex;
+    position:fixed;
+    bottom:0px;
+    width: 80vw;
+    height: 10vh;
+    padding: 0px 16px 16px 0px;
+  }
+
+  .send-message paper-input {
+    width: 80%;
+  }
+</style>
+
+<dom-module id="firebase-chat">
+  <template is="dom-bind">
+    <firebase-collection
+      limit-to-last="{{limitmessage}}"
+      location={{firebaselocation}}
+      data="{{messages}}"></firebase-collection>
+
+    <div class="container">
+      <div id="chatlist">
+        <paper-button on-click="upthelimit"><iron-icon icon="icons:history"></iron-icon></paper-button>
+        <template is="dom-repeat" items="[[messages]]" as="message" on-change="changeListener">
+          <h4>[[message.user]]</h4>
+          <span>[[message.msg]]</span>
+        </template>
+        <!--<template repeat="{{message in messageList}}">-->
+          <!--<chat-row color="{{message.color}}" avatar="{{message.avatar}}" username="{{message.uuid}}" text="{{message.text}}"  status="{{message.status}}" timestamp="{{message.timestamp}}"></chat-row>-->
+        <!--</template>-->
+      </div>
+      <div class="shim"></div>
+
+      <!-- http://charbelrami.me/flex-element/ Love this element -->
+      <flex-element y-end x-stretch>
+
+      </flex-element>
+
+      <div class="send-message" layout horizontal>
+        <paper-input flex label="Type message..." id="messageinput" value={{messageinput}} on-keyup="handleKey"></paper-input>
+        <paper-fab icon="send" id="sendButton" on-tap="sendMessage"></paper-fab>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    (function() {
+      Polymer({
+        is: 'firebase-chat',
+
+        properties: {
+          messages: {
+            type: Array,
+            observer: '_handleMessageChange',
+            notify: true
+          },
+
+          limitmessage: {
+            type: Object,
+            value: 100,
+            notify: true
+          }
+        },
+
+        ready: function() {
+          Array.observe(this.messages, function(change) {
+            console.log("Change detected");
+            window.setTimeout(function(){
+              app.scrollPageToBottom();
+            }, 100);
+          });
+//          this.$.addEventListener('dom-change', function() {
+//            console.log("Change detected");
+//          });
+
+//          var self = this;
+//          window.setTimeout(function(){
+//            self.scrollChat.scrollIntoView(false);
+//            console.log("SCROLL");
+//          }, 1000);
+
+//          var t = document.querySelector('#chatlist');
+//
+//          // The dom-change event signifies when the template has stamped its DOM.
+//          t.addEventListener('dom-change', function() {
+//            console.log("Change detected");
+//          });
+        },
+
+        _handleMessageChange: function(data) {
+          console.log("OBSERVER CHANGE");
+        },
+
+        changeListener: function(data) {
+          console.log("Change detected");
+          return data;
+        },
+
+        upthelimit: function() {
+          var temp = parseInt(this.properties.limitmessage.value);
+          temp += 100;
+          console.log(temp);
+          this.properties.limitmessage.value = temp.toString();
+        },
+
+        handleKey: function(e) {
+          if(e.keyCode === 13 || e.charCode === 13) {
+            this.sendMessage();
+          }
+        },
+
+        sendMessage: function() {
+          console.log("Sending message: " + messageinput.value);
+          if (messageinput.value == '') return;
+          backend.sendMessage(messageinput.value, function(error) {
+            // Do something when message is delivered or check for errors
+//            app.scrollPageToBottom();
+          });
+          messageinput.value = '';
+        }
+
+      });
+    })();
+  </script>
+
+</dom-module>
